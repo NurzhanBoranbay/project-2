@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Timer
 
-  const deadline = '2021-12-06';
+  const deadline = '2021-12-15';
 
   function getTimeRemaining(endTime) {
      const time = Date.parse(endTime) - Date.parse(new Date()),
@@ -100,14 +100,15 @@ window.addEventListener('DOMContentLoaded', () => {
         modal = document.querySelector('.modal'),
         modalCloseBtn = modal.querySelector('[data-close]');
 
-        modalTrigger.forEach(btn => {
-      btn.addEventListener('click', showModal);
+   modalTrigger.forEach(btn => {
+      btn.addEventListener('click', openModal);
    });
 
-   function showModal() {
+   function openModal() {
       modal.classList.add('show');
       modal.classList.remove('hide');
       document.body.style.overflow = 'hidden';
+      //clearInterval(modalTimerId);
    }
 
    modalCloseBtn.addEventListener('click', closeModal);
@@ -118,16 +119,92 @@ window.addEventListener('DOMContentLoaded', () => {
       document.body.style.overflow = '';
    }
 
-   modal.addEventListener('click', e => {
-      if (e.target === modal) {
+   modal.addEventListener('click', event => {
+      if (event.target === modal) {
          closeModal();
       }
    });
 
-   document.addEventListener('keydown', (e) => {
+   window.addEventListener('keydown', (e) => {
       if (e.code === 'Escape' && modal.classList.contains('show')) {
          closeModal();
       }
    });
+
+   //const modalTimerId = setTimeout(openModal, 3000);
+
+   window.addEventListener('scroll', showModalByScroll);
+
+   function showModalByScroll() {
+      if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
+         openModal();
+         window.removeEventListener('scroll', showModalByScroll);
+      }
+   }
+
+   // Используем классы для карточек
+
+   class MenuCard {
+      constructor(src, alt, title, descr, price, parentSelector) {
+         this.src = src;
+         this.alt = alt;
+         this.title = title;
+         this.descr = descr;
+         this.price = price;
+         this.parent = document.querySelector(parentSelector);
+         this.transfer = 27;
+         this.changeToUAH();
+      }
+
+      changeToUAH() {
+         this.price = this.price * this.transfer;
+      }
+
+      render() {
+         const element = document.createElement('div');
+         //element.classList.add('container');
+         element.innerHTML = `
+            <div class="menu__item">
+               <img src="${this.src}" alt="${this.alt}">
+               <h3 class="menu__item-subtitle">${this.title}</h3>
+               <div class="menu__item-descr">${this.descr}</div>
+               <div class="menu__item-divider"></div>
+               <div class="menu__item-price">
+                  <div class="menu__item-cost">Цена:</div>
+                  <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+               </div>
+            </div>
+         `;
+         this.parent.append(element);
+         console.log(this.parent);
+      }
+   }
+
+   new MenuCard(
+      'img/tabs/vegy.jpg',
+      "vegy",
+      'Меню "Фитнес"',
+      'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+      9, 
+      '.menu .container'
+   ).render();  
+
+   new MenuCard(
+      "img/tabs/elite.jpg",
+      "elite",
+      'Меню “Премиум”',
+      'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+      14, 
+      '.menu .container'
+   ).render();
+
+   new MenuCard(
+      'img/tabs/post.jpg',
+      "vegy",
+      'Меню "Постное"',
+      'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+      21, 
+      '.menu .container'
+   ).render();
 
 });
